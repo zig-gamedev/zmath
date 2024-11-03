@@ -16,12 +16,7 @@ An intro article can be found [here](https://zig.news/michalz/fast-multi-platfor
 
 ## Getting started
 
-Copy `zmath` into a subdirectory of your project and add the following to your `build.zig.zon` .dependencies:
-```zig
-    .zmath = .{ .path = "libs/zmath" },
-```
-
-Then in your `build.zig` add:
+Example `build.zig`
 
 ```zig
 pub fn build(b: *std.Build) void {
