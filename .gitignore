@@ -1,5 +1,5 @@
 # Ignore some special directories
-*zig-cache
+*.zig-cache
 *zig-out
 
 # Ignore some special OS files
