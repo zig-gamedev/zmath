@@ -1386,16 +1386,19 @@ test "zmath.lerpInverse" {
 // Reference: https://www.gamedeveloper.com/programming/improved-lerp-smoothing-
 pub inline fn lerpOverTime(v0: anytype, v1: anytype, rate: anytype, dt: anytype) @TypeOf(v0, v1) {
     const t = std.math.exp2(-rate * dt);
-    return lerp(v0, v1, t);
+    return lerp(v1, v0, t);
 }
 
 pub inline fn lerpVOverTime(v0: anytype, v1: anytype, rate: anytype, dt: anytype) @TypeOf(v0, v1, rate, dt) {
     const t = std.math.exp2(-rate * dt);
-    return lerpV(v0, v1, t);
+    return lerpV(v1, v0, t);
 }
+
 test "zmath.lerpOverTime" {
     try expect(math.approxEqAbs(f32, lerpVOverTime(0.0, 1.0, 1.0, 1.0), 0.5, 0.0005));
     try expect(math.approxEqAbs(f32, lerpVOverTime(0.5, 1.0, 1.0, 1.0), 0.75, 0.0005));
+    try expect(math.approxEqAbs(f32, lerpVOverTime(0.0, 1.0, 1.0, 0.0), 0.0, 0.0005));
+    try expect(math.approxEqAbs(f32, lerpVOverTime(0.0, 1.0, 1.0, std.math.inf(f32)), 1.0, 0.0005));
     try expectVecApproxEqAbs(lerpOverTime(f32x4(0, 0, 10, 10), f32x4(100, 200, 100, 100), 1.0, 1.0), f32x4(50, 100, 55, 55), 0.0005);
 }
 
