@@ -195,7 +195,7 @@
 // orthographicRh(w: f32, h: f32, near: f32, far: f32) Mat
 // orthographicLhGl(w: f32, h: f32, near: f32, far: f32) Mat
 // orthographicRhGl(w: f32, h: f32, near: f32, far: f32) Mat
-// orthographicRhDX(w: f32, h: f32, near: f32, far: f32) Mat
+// orthographicLhDX(w: f32, h: f32, near: f32, far: f32) Mat
 // orthographicOffCenterLh(left: f32, right: f32, top: f32, bottom: f32, near: f32, far: f32) Mat
 // orthographicOffCenterRh(left: f32, right: f32, top: f32, bottom: f32, near: f32, far: f32) Mat
 // orthographicOffCenterLhGl(left: f32, right: f32, top: f32, bottom: f32, near: f32, far: f32) Mat
@@ -2484,7 +2484,7 @@ pub fn orthographicRhGl(w: f32, h: f32, near: f32, far: f32) Mat {
 }
 
 // Produces Z values in [1.0, 0.0] range (OpenGL defaults)
-pub fn orthographicRhDX(w: f32, h: f32, near: f32, far: f32) Mat {
+pub fn orthographicLhDX(w: f32, h: f32, near: f32, far: f32) Mat {
     std.debug.assert(!std.math.approxEqAbs(f32, w, 0.0, 0.001));
     std.debug.assert(!std.math.approxEqAbs(f32, h, 0.0, 0.001));
     std.debug.assert(!std.math.approxEqAbs(f32, far, near, 0.001));
