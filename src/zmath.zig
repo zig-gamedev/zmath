@@ -55,6 +55,10 @@
 // f32x16(e0: f32, e1: f32, e2: f32, e3: f32, e4: f32, e5: f32, e6: f32, e7: f32,
 //        e8: f32, e9: f32, ea: f32, eb: f32, ec: f32, ed: f32, ee: f32, ef: f32) F32x16
 //
+// vec4(e0: f32, e1: f32, e2: f32, e3: f32) Vec
+// vec3(e0: f32, e1: f32, e2: f32) Vec
+// vec2(e0: f32, e1: f32) Vec
+//
 // f32x4s(e0: f32) F32x4
 // f32x8s(e0: f32) F32x8
 // f32x16s(e0: f32) F32x16
@@ -175,6 +179,9 @@
 // translationV(v: Vec) Mat
 // scaling(x: f32, y: f32, z: f32) Mat
 // scalingV(v: Vec) Mat
+// trs(_translation: Vec, rotation: Quat, scale: Vec) Mat
+// getTranslation(mat: Mat) Vec
+// getForward(mat: Mat) Vec
 // lookToLh(eyepos: Vec, eyedir: Vec, updir: Vec) Mat
 // lookAtLh(eyepos: Vec, focuspos: Vec, updir: Vec) Mat
 // lookToRh(eyepos: Vec, eyedir: Vec, updir: Vec) Mat
@@ -183,10 +190,12 @@
 // perspectiveFovRh(fovy: f32, aspect: f32, near: f32, far: f32) Mat
 // perspectiveFovLhGl(fovy: f32, aspect: f32, near: f32, far: f32) Mat
 // perspectiveFovRhGl(fovy: f32, aspect: f32, near: f32, far: f32) Mat
+// perspectiveFovLhDX(fovy: f32, aspect: f32, near: f32, far: f32) Mat
 // orthographicLh(w: f32, h: f32, near: f32, far: f32) Mat
 // orthographicRh(w: f32, h: f32, near: f32, far: f32) Mat
 // orthographicLhGl(w: f32, h: f32, near: f32, far: f32) Mat
 // orthographicRhGl(w: f32, h: f32, near: f32, far: f32) Mat
+// orthographicLhDX(w: f32, h: f32, near: f32, far: f32) Mat
 // orthographicOffCenterLh(left: f32, right: f32, top: f32, bottom: f32, near: f32, far: f32) Mat
 // orthographicOffCenterRh(left: f32, right: f32, top: f32, bottom: f32, near: f32, far: f32) Mat
 // orthographicOffCenterLhGl(left: f32, right: f32, top: f32, bottom: f32, near: f32, far: f32) Mat
@@ -303,6 +312,16 @@ pub inline fn f32x16(
     return .{ e0, e1, e2, e3, e4, e5, e6, e7, e8, e9, ea, eb, ec, ed, ee, ef };
 }
 // zig fmt: on
+
+pub inline fn vec4(e0: f32, e1: f32, e2: f32, e3: f32) Vec {
+    return f32x4(e0, e1, e2, e3);
+}
+pub inline fn vec3(e0: f32, e1: f32, e2: f32) Vec {
+    return f32x4(e0, e1, e2, 0);
+}
+pub inline fn vec2(e0: f32, e1: f32) Vec {
+    return f32x4(e0, e1, 0, 0);
+}
 
 pub inline fn f32x4s(e0: f32) F32x4 {
     return splat(F32x4, e0);
@@ -2264,6 +2283,24 @@ pub fn scalingV(v: Vec) Mat {
     return scaling(v[0], v[1], v[2]);
 }
 
+pub fn trs(_translation: Vec, rotation: Quat, scale: Vec) Mat {
+    const rot = matFromQuat(rotation);
+    return .{
+        f32x4(rot[0][0], rot[0][1], rot[0][2], 0.0) * f32x4s(scale[0]),
+        f32x4(rot[1][0], rot[1][1], rot[1][2], 0.0) * f32x4s(scale[1]),
+        f32x4(rot[2][0], rot[2][1], rot[2][2], 0.0) * f32x4s(scale[2]),
+        f32x4(_translation[0], _translation[1], _translation[2], 1.0),
+    };
+}
+
+pub fn getTranslation(mat: Mat) Vec {
+    return vec3(mat[3][0], mat[3][1], mat[3][2]);
+}
+
+pub fn getForward(mat: Mat) Vec {
+    return normalize3(vec3(mat[2][0], mat[2][1], mat[2][2]));
+}
+
 pub fn lookToLh(eyepos: Vec, eyedir: Vec, updir: Vec) Mat {
     const az = normalize3(eyedir);
     const ax = normalize3(cross3(updir, az));
@@ -2369,6 +2406,25 @@ pub fn perspectiveFovRhGl(fovy: f32, aspect: f32, near: f32, far: f32) Mat {
     };
 }
 
+// Produces Z values in [1.0, 0.0] range (DirectX defaults)
+pub fn perspectiveFovLhDX(fovy: f32, aspect: f32, near: f32, far: f32) Mat {
+    const scfov = sincos(0.5 * fovy);
+
+    std.debug.assert(near > 0.0 and far > 0.0);
+    std.debug.assert(!std.math.approxEqAbs(f32, scfov[0], 0.0, 0.001));
+    std.debug.assert(!std.math.approxEqAbs(f32, far, near, 0.001));
+    std.debug.assert(!std.math.approxEqAbs(f32, aspect, 0.0, 0.01));
+
+    const h = scfov[1] / scfov[0];
+    const w = h / aspect;
+    return .{
+        f32x4(w, 0.0, 0.0, 0.0),
+        f32x4(0.0, h, 0.0, 0.0),
+        f32x4(0.0, 0.0, near / (near - far), 1.0),
+        f32x4(0.0, 0.0, -(near * far) / (near - far), 0.0),
+    };
+}
+
 pub fn orthographicLh(w: f32, h: f32, near: f32, far: f32) Mat {
     assert(!math.approxEqAbs(f32, w, 0.0, 0.001));
     assert(!math.approxEqAbs(f32, h, 0.0, 0.001));
@@ -2424,6 +2480,21 @@ pub fn orthographicRhGl(w: f32, h: f32, near: f32, far: f32) Mat {
         f32x4(0.0, 2 / h, 0.0, 0.0),
         f32x4(0.0, 0.0, 2 / r, 0.0),
         f32x4(0.0, 0.0, (near + far) / r, 1.0),
+    };
+}
+
+// Produces Z values in [1.0, 0.0] range (OpenGL defaults)
+pub fn orthographicLhDX(w: f32, h: f32, near: f32, far: f32) Mat {
+    std.debug.assert(!std.math.approxEqAbs(f32, w, 0.0, 0.001));
+    std.debug.assert(!std.math.approxEqAbs(f32, h, 0.0, 0.001));
+    std.debug.assert(!std.math.approxEqAbs(f32, far, near, 0.001));
+
+    const r = near / (near - far);
+    return .{
+        f32x4(2 / w, 0.0, 0.0, 0.0),
+        f32x4(0.0, 2 / h, 0.0, 0.0),
+        f32x4(0.0, 0.0, r, 0.0),
+        f32x4(0.0, 0.0, -r * far, 1.0),
     };
 }
 
