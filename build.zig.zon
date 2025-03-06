@@ -1,5 +1,6 @@
 .{
-    .name = "zmath",
+    .name = .zmath,
+    .fingerprint = 0xfd23d422bd223cc2,
     .version = "0.11.0-dev",
     .paths = .{
         "build.zig",
