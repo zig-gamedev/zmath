@@ -16,6 +16,11 @@ An intro article can be found [here](https://zig.news/michalz/fast-multi-platfor
 
 ## Getting started
 
+How to get dependencies
+
+1. specific version: `zig fetch --save https://github.com/zig-gamedev/zmath/archive/refs/tags/<REPLACE ME>.tar.gz`
+2. main branch version: `zig fetch --save git+https://github.com/zig-gamedev/zmath.git`
+
 Example `build.zig`
 
 ```zig
