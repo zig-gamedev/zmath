@@ -8,13 +8,18 @@ Provides ~140 optimized routines and ~70 extensive tests.
 
 Can be used with any graphics API.
 
-Documentation can be found [here](https://github.com/michal-z/zig-gamedev/zmath/src/zmath.zig).
+Documentation can be found [here](https://github.com/zig-gamedev/zmath/blob/main/src/zmath.zig).
 
-Benchamrks can be found [here](https://github.com/michal-z/zig-gamedev/zmath/src/benchmark.zig).
+Benchamrks can be found [here](https://github.com/zig-gamedev/zmath/blob/main/src/benchmark.zig).
 
 An intro article can be found [here](https://zig.news/michalz/fast-multi-platform-simd-math-library-in-zig-2adn).
 
 ## Getting started
+
+How to get dependencies
+
+1. specific version: `zig fetch --save https://github.com/zig-gamedev/zmath/archive/refs/tags/<REPLACE ME>.tar.gz`
+2. main branch version: `zig fetch --save git+https://github.com/zig-gamedev/zmath.git`
 
 Example `build.zig`
 
