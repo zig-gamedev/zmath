@@ -7,10 +7,11 @@
 // See util.zig for additional functionality.
 //
 //--------------------------------------------------------------------------------------------------
-pub usingnamespace @import("zmath.zig");
+pub const zmath = @import("zmath.zig");
 pub const util = @import("util.zig");
 
 // ensure transitive closure of test coverage
 comptime {
     _ = util;
+    _ = zmath;
 }
