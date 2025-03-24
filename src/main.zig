@@ -1,23 +1,9 @@
-//--------------------------------------------------------------------------------------------------
-//
-// SIMD math library for game developers
-// https://github.com/michal-z/zig-gamedev/tree/main/libs/zmath
-//
-// See zmath.zig for more details.
-// See util.zig for additional functionality.
-//
-//--------------------------------------------------------------------------------------------------
-pub const util = @import("util.zig");
-
-// ensure transitive closure of test coverage
-comptime {
-    _ = util;
-}
-
 // ==============================================================================
 //
 // SIMD math library for game developers
 // https://github.com/michal-z/zig-gamedev/tree/main/libs/zmath
+//
+// See util.zig for additional functionality.
 //
 // Should work on all OSes supported by Zig. Works on x86_64 and ARM.
 // Provides ~140 optimized routines and ~70 extensive tests.
@@ -277,6 +263,13 @@ comptime {
 // ifft(re: []F32x4, im: []const F32x4, unitytable: []const F32x4) void
 //
 // ==============================================================================
+
+pub const util = @import("util.zig");
+
+// ensure transitive closure of test coverage
+comptime {
+    _ = util;
+}
 
 // Fundamental types
 pub const F32x4 = @Vector(4, f32);
