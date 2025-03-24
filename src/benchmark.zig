@@ -65,7 +65,7 @@ pub fn main() !void {
 const std = @import("std");
 const time = std.time;
 const Timer = time.Timer;
-const zm = @import("zmath").zmath;
+const zm = @import("zmath");
 
 var prng = std.Random.DefaultPrng.init(0);
 const random = prng.random();

@@ -35,7 +35,7 @@ pub fn build(b: *std.Build) void {
 Now in your code you may import and use zmath:
 
 ```zig
-const zm = @import("zmath").zmath;
+const zm = @import("zmath");
 
 pub fn main() !void {
     //
