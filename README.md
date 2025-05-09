@@ -1,4 +1,4 @@
-# [zmath](https://github.com/michal-z/zig-gamedev/zmath)
+# [zmath](https://github.com/zig-gamedev/zmath)
 
 SIMD math library for game developers
 
