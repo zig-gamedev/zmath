@@ -4557,7 +4557,7 @@ pub const util = struct {
         return _translation;
     }
 
-    pub fn set_TranslationVec(m: *Mat, _translation: Vec) void {
+    pub fn setTranslationVec(m: *Mat, _translation: Vec) void {
         const w = m[3][3];
         m[3] = _translation;
         m[3][3] = w;
