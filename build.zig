@@ -2,11 +2,13 @@ const std = @import("std");
 
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
-    const optimize = b.standardOptimizeOption(.{
-        .preferred_optimize_mode = .ReleaseFast,
-    });
 
     const options = .{
+        .optimize = b.option(
+            std.builtin.OptimizeMode,
+            "optimize",
+            "The optimization level to use for the build",
+        ) orelse .ReleaseFast,
         .enable_cross_platform_determinism = b.option(
             bool,
             "enable_cross_platform_determinism",
@@ -34,7 +36,7 @@ pub fn build(b: *std.Build) void {
         .name = "zmath-tests",
         .root_source_file = b.path("src/root.zig"),
         .target = target,
-        .optimize = optimize,
+        .optimize = options.optimize,
     });
     b.installArtifact(tests);
 
@@ -48,7 +50,7 @@ pub fn build(b: *std.Build) void {
         .name = "zmath-benchmarks",
         .root_source_file = b.path("src/benchmark.zig"),
         .target = target,
-        .optimize = optimize,
+        .optimize = options.optimize,
     });
     b.installArtifact(benchmarks);
 
