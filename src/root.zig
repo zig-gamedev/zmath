@@ -2021,13 +2021,13 @@ test "zmath.length3" {
 }
 
 pub inline fn normalize2(v: Vec) Vec {
-    return v * splat(F32x4, 1.0) / sqrt(dot2(v, v));
+    return v / sqrt(dot2(v, v));
 }
 pub inline fn normalize3(v: Vec) Vec {
-    return v * splat(F32x4, 1.0) / sqrt(dot3(v, v));
+    return v / sqrt(dot3(v, v));
 }
 pub inline fn normalize4(v: Vec) Vec {
-    return v * splat(F32x4, 1.0) / sqrt(dot4(v, v));
+    return v / sqrt(dot4(v, v));
 }
 test "zmath.normalize3" {
     {
