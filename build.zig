@@ -34,9 +34,11 @@ pub fn build(b: *std.Build) void {
 
     const tests = b.addTest(.{
         .name = "zmath-tests",
-        .root_source_file = b.path("src/root.zig"),
-        .target = target,
-        .optimize = options.optimize,
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/root.zig"),
+            .target = target,
+            .optimize = options.optimize,
+        }),
     });
     b.installArtifact(tests);
 
@@ -48,9 +50,11 @@ pub fn build(b: *std.Build) void {
 
     const benchmarks = b.addExecutable(.{
         .name = "zmath-benchmarks",
-        .root_source_file = b.path("src/benchmark.zig"),
-        .target = target,
-        .optimize = options.optimize,
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/benchmark.zig"),
+            .target = target,
+            .optimize = options.optimize,
+        }),
     });
     b.installArtifact(benchmarks);
 
