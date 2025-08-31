@@ -82,20 +82,20 @@ noinline fn mat4MulBenchmark(allocator: std.mem.Allocator, comptime count: compt
     std.debug.print("\n", .{});
     std.debug.print("{s:>42} - ", .{"matrix mul benchmark (AOS)"});
 
-    var data0 = std.ArrayList([16]f32).init(allocator);
+    var data0 = try std.ArrayList([16]f32).initCapacity(allocator, 64);
     defer data0.deinit();
-    var data1 = std.ArrayList([16]f32).init(allocator);
+    var data1 = try std.ArrayList([16]f32).initCapacity(allocator, 64);
     defer data1.deinit();
 
     var i: usize = 0;
     while (i < 64) : (i += 1) {
-        try data0.append([16]f32{
+        try data0.append(allocator, [16]f32{
             random.float(f32), random.float(f32), random.float(f32), random.float(f32),
             random.float(f32), random.float(f32), random.float(f32), random.float(f32),
             random.float(f32), random.float(f32), random.float(f32), random.float(f32),
             random.float(f32), random.float(f32), random.float(f32), random.float(f32),
         });
-        try data1.append([16]f32{
+        try data1.append(allocator, [16]f32{
             random.float(f32), random.float(f32), random.float(f32), random.float(f32),
             random.float(f32), random.float(f32), random.float(f32), random.float(f32),
             random.float(f32), random.float(f32), random.float(f32), random.float(f32),
@@ -175,15 +175,15 @@ noinline fn mat4MulBenchmark(allocator: std.mem.Allocator, comptime count: compt
 noinline fn cross3ScaleBiasBenchmark(allocator: std.mem.Allocator, comptime count: comptime_int) !void {
     std.debug.print("{s:>42} - ", .{"cross3, scale, bias benchmark (AOS)"});
 
-    var data0 = std.ArrayList([3]f32).init(allocator);
+    var data0 = try std.ArrayList([3]f32).initCapacity(allocator, 256);
     defer data0.deinit();
-    var data1 = std.ArrayList([3]f32).init(allocator);
+    var data1 = try std.ArrayList([3]f32).initCapacity(allocator, 256);
     defer data1.deinit();
 
     var i: usize = 0;
     while (i < 256) : (i += 1) {
-        try data0.append([3]f32{ random.float(f32), random.float(f32), random.float(f32) });
-        try data1.append([3]f32{ random.float(f32), random.float(f32), random.float(f32) });
+        try data0.append(allocator, [3]f32{ random.float(f32), random.float(f32), random.float(f32) });
+        try data1.append(allocator, [3]f32{ random.float(f32), random.float(f32), random.float(f32) });
     }
 
     // Warmup, fills L1 cache.
@@ -245,15 +245,15 @@ noinline fn cross3ScaleBiasBenchmark(allocator: std.mem.Allocator, comptime coun
 noinline fn cross3Dot3ScaleBiasBenchmark(allocator: std.mem.Allocator, comptime count: comptime_int) !void {
     std.debug.print("{s:>42} - ", .{"cross3, dot3, scale, bias benchmark (AOS)"});
 
-    var data0 = std.ArrayList([3]f32).init(allocator);
-    defer data0.deinit();
-    var data1 = std.ArrayList([3]f32).init(allocator);
-    defer data1.deinit();
+    var data0 = try std.ArrayList([3]f32).initCapacity(allocator, 256);
+    defer data0.deinit(allocator);
+    var data1 = try std.ArrayList([3]f32).initCapacity(allocator, 256);
+    defer data1.deinit(allocator);
 
     var i: usize = 0;
     while (i < 256) : (i += 1) {
-        try data0.append([3]f32{ random.float(f32), random.float(f32), random.float(f32) });
-        try data1.append([3]f32{ random.float(f32), random.float(f32), random.float(f32) });
+        try data0.append(allocator, [3]f32{ random.float(f32), random.float(f32), random.float(f32) });
+        try data1.append(allocator, [3]f32{ random.float(f32), random.float(f32), random.float(f32) });
     }
 
     // Warmup, fills L1 cache.
@@ -316,15 +316,15 @@ noinline fn cross3Dot3ScaleBiasBenchmark(allocator: std.mem.Allocator, comptime 
 noinline fn quatBenchmark(allocator: std.mem.Allocator, comptime count: comptime_int) !void {
     std.debug.print("{s:>42} - ", .{"quaternion mul benchmark (AOS)"});
 
-    var data0 = std.ArrayList([4]f32).init(allocator);
-    defer data0.deinit();
-    var data1 = std.ArrayList([4]f32).init(allocator);
-    defer data1.deinit();
+    var data0 = try std.ArrayList([4]f32).initCapacity(allocator, 256);
+    defer data0.deinit(allocator);
+    var data1 = try std.ArrayList([4]f32).initCapacity(allocator, 256);
+    defer data1.deinit(allocator);
 
     var i: usize = 0;
     while (i < 256) : (i += 1) {
-        try data0.append([4]f32{ random.float(f32), random.float(f32), random.float(f32), random.float(f32) });
-        try data1.append([4]f32{ random.float(f32), random.float(f32), random.float(f32), random.float(f32) });
+        try data0.append(allocator, [4]f32{ random.float(f32), random.float(f32), random.float(f32), random.float(f32) });
+        try data1.append(allocator, [4]f32{ random.float(f32), random.float(f32), random.float(f32), random.float(f32) });
     }
 
     // Warmup, fills L1 cache.
