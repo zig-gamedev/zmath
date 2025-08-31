@@ -82,9 +82,9 @@ noinline fn mat4MulBenchmark(allocator: std.mem.Allocator, comptime count: compt
     std.debug.print("\n", .{});
     std.debug.print("{s:>42} - ", .{"matrix mul benchmark (AOS)"});
 
-    var data0 = try std.ArrayList([16]f32).initCapacity(allocator, 0);
+    var data0 = try std.ArrayList([16]f32).initCapacity(allocator, 64);
     defer data0.deinit(allocator);
-    var data1 = try std.ArrayList([16]f32).initCapacity(allocator, 0);
+    var data1 = try std.ArrayList([16]f32).initCapacity(allocator, 64);
     defer data1.deinit(allocator);
 
     var i: usize = 0;
