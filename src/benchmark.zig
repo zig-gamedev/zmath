@@ -176,9 +176,9 @@ noinline fn cross3ScaleBiasBenchmark(allocator: std.mem.Allocator, comptime coun
     std.debug.print("{s:>42} - ", .{"cross3, scale, bias benchmark (AOS)"});
 
     var data0 = try std.ArrayList([3]f32).initCapacity(allocator, 256);
-    defer data0.deinit(allocator);
+    defer data0.deinit();
     var data1 = try std.ArrayList([3]f32).initCapacity(allocator, 256);
-    defer data1.deinit(allocator);
+    defer data1.deinit();
 
     var i: usize = 0;
     while (i < 256) : (i += 1) {
