@@ -316,9 +316,9 @@ noinline fn cross3Dot3ScaleBiasBenchmark(allocator: std.mem.Allocator, comptime 
 noinline fn quatBenchmark(allocator: std.mem.Allocator, comptime count: comptime_int) !void {
     std.debug.print("{s:>42} - ", .{"quaternion mul benchmark (AOS)"});
 
-    var data0 = try std.ArrayList([4]f32).initCapacity(allocator, 0);
+    var data0 = try std.ArrayList([4]f32).initCapacity(allocator, 256);
     defer data0.deinit(allocator);
-    var data1 = try std.ArrayList([4]f32).initCapacity(allocator, 0);
+    var data1 = try std.ArrayList([4]f32).initCapacity(allocator, 256);
     defer data1.deinit(allocator);
 
     var i: usize = 0;
