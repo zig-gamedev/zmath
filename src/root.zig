@@ -4122,7 +4122,8 @@ test "zmath.fftN" {
             -77.254834, 0.000000, -105.489863, 0.000000, -160.874864, 0.000000, -324.901452, 0.000000,
         };
         for (expected, 0..) |e, ie| {
-            try expect(std.math.approxEqAbs(f32, e, im[(ie / 4)][ie % 4], epsilon));
+            const v: [4]f32 = im[(ie / 4)];
+            try expect(std.math.approxEqAbs(f32, e, v[ie % 4], epsilon));
         }
     }
 
@@ -4185,7 +4186,8 @@ test "zmath.fftN" {
             -321.749727, 0.000000, 0.000000, 0.000000, -649.802905, 0.000000, 0.000000, 0.000000,
         };
         for (expected, 0..) |e, ie| {
-            try expect(std.math.approxEqAbs(f32, e, im[(ie / 4)][ie % 4], epsilon));
+            const v: [4]f32 = im[(ie / 4)];
+            try expect(std.math.approxEqAbs(f32, e, v[ie % 4], epsilon));
         }
     }
 }
