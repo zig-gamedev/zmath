@@ -798,8 +798,6 @@ pub inline fn min(v0: anytype, v1: anytype) @TypeOf(v0, v1) {
     return @select(Child, nan0, v1, @select(Child, nan1, v0, @min(v0, v1)));
 }
 test "zmath.min" {
-    // Calling math.inf causes test to fail!
-    if (builtin.target.os.tag == .macos and builtin.target.cpu.arch == .aarch64) return error.SkipZigTest;
     {
         const v0 = f32x4(1.0, 3.0, 2.0, 7.0);
         const v1 = f32x4(2.0, 1.0, 4.0, math.inf(f32));
@@ -849,8 +847,6 @@ pub inline fn max(v0: anytype, v1: anytype) @TypeOf(v0, v1) {
     return @select(Child, nan0, v1, @select(Child, nan1, v0, @max(v0, v1)));
 }
 test "zmath.max" {
-    // Calling math.inf causes test to fail!
-    if (builtin.target.os.tag == .macos and builtin.target.cpu.arch == .aarch64) return error.SkipZigTest;
     {
         const v0 = f32x4(1.0, 3.0, 2.0, 7.0);
         const v1 = f32x4(2.0, 1.0, 4.0, math.inf(f32));
@@ -1263,8 +1259,6 @@ pub inline fn clamp(v: anytype, vmin: anytype, vmax: anytype) @TypeOf(v, vmin, v
     return result;
 }
 test "zmath.clamp" {
-    // Calling math.inf causes test to fail!
-    if (builtin.target.os.tag == .macos and builtin.target.cpu.arch == .aarch64) return error.SkipZigTest;
     {
         const v0 = f32x4(-1.0, 0.2, 1.1, -0.3);
         const v = clamp(v0, splat(F32x4, -0.5), splat(F32x4, 0.5));
@@ -1307,8 +1301,6 @@ pub inline fn saturate(v: anytype) @TypeOf(v) {
     return result;
 }
 test "zmath.saturate" {
-    // Calling math.inf causes test to fail!
-    if (builtin.target.os.tag == .macos and builtin.target.cpu.arch == .aarch64) return error.SkipZigTest;
     {
         const v0 = f32x4(-1.0, 0.2, 1.1, -0.3);
         const v = saturate(v0);
