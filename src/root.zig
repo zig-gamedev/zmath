@@ -787,8 +787,15 @@ test "zmath.maxFast" {
 }
 
 pub inline fn min(v0: anytype, v1: anytype) @TypeOf(v0, v1) {
-    // This will handle inf & nan
-    return @min(v0, v1); // minps, cmpunordps, andps, andnps, orps
+    const T = @TypeOf(v0, v1);
+    const Child = std.meta.Child(T);
+    // v != v is true only when v is NaN
+    const nan0 = v0 != v0;
+    const nan1 = v1 != v1;
+    // if v0 is NaN, pick v1
+    // else if v1 is NaN, pick v0
+    // else pick normal @min
+    return @select(Child, nan0, v1, @select(Child, nan1, v0, @min(v0, v1)));
 }
 test "zmath.min" {
     // Calling math.inf causes test to fail!
@@ -831,8 +838,15 @@ test "zmath.min" {
 }
 
 pub inline fn max(v0: anytype, v1: anytype) @TypeOf(v0, v1) {
-    // This will handle inf & nan
-    return @max(v0, v1); // maxps, cmpunordps, andps, andnps, orps
+    const T = @TypeOf(v0, v1);
+    const Child = std.meta.Child(T);
+    // v != v is true only when v is NaN
+    const nan0 = v0 != v0;
+    const nan1 = v1 != v1;
+    // if v0 is NaN, pick v1
+    // else if v1 is NaN, pick v0
+    // else pick normal @max
+    return @select(Child, nan0, v1, @select(Child, nan1, v0, @max(v0, v1)));
 }
 test "zmath.max" {
     // Calling math.inf causes test to fail!
@@ -4122,7 +4136,8 @@ test "zmath.fftN" {
             -77.254834, 0.000000, -105.489863, 0.000000, -160.874864, 0.000000, -324.901452, 0.000000,
         };
         for (expected, 0..) |e, ie| {
-            try expect(std.math.approxEqAbs(f32, e, im[(ie / 4)][ie % 4], epsilon));
+            const v: [4]f32 = im[ie / 4];
+            try expect(std.math.approxEqAbs(f32, e, v[ie % 4], epsilon));
         }
     }
 
@@ -4185,7 +4200,8 @@ test "zmath.fftN" {
             -321.749727, 0.000000, 0.000000, 0.000000, -649.802905, 0.000000, 0.000000, 0.000000,
         };
         for (expected, 0..) |e, ie| {
-            try expect(std.math.approxEqAbs(f32, e, im[(ie / 4)][ie % 4], epsilon));
+            const v: [4]f32 = im[ie / 4];
+            try expect(std.math.approxEqAbs(f32, e, v[ie % 4], epsilon));
         }
     }
 }

@@ -49,43 +49,41 @@
 ///                      wave benchmark (SOA) - scalar version: 3.7832s, zmath version: 0.3642s
 ///
 /// -------------------------------------------------------------------------------------------------
-pub fn main() !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    defer _ = gpa.deinit();
-    const allocator = gpa.allocator();
+pub fn main(init: std.process.Init) !void {
+    const allocator = init.gpa;
+    const io = init.io;
 
     // m = mul(ma, mb); data set fits in L1 cache; AOS data layout.
-    try mat4MulBenchmark(allocator, 100_000);
+    try mat4MulBenchmark(allocator, io, 100_000);
 
     // v = 0.01 * cross3(va, vb) + vec3(1.0); data set fits in L1 cache; AOS data layout.
-    try cross3ScaleBiasBenchmark(allocator, 10_000);
+    try cross3ScaleBiasBenchmark(allocator, io, 10_000);
 
     // v = dot3(va, vb) * (0.1 * cross3(va, vb) + vec3(1.0)); data set fits in L1 cache; AOS data layout.
-    try cross3Dot3ScaleBiasBenchmark(allocator, 10_000);
+    try cross3Dot3ScaleBiasBenchmark(allocator, io, 10_000);
 
     // q = qmul(qa, qb); data set fits in L1 cache; AOS data layout.
-    try quatBenchmark(allocator, 10_000);
+    try quatBenchmark(allocator, io, 10_000);
 
     // d = sqrt(x * x + z * z); y = sin(d - t); SOA layout.
-    try waveBenchmark(allocator, 1_000);
+    try waveBenchmark(allocator, io, 1_000);
 }
 
 const std = @import("std");
-const time = std.time;
-const Timer = time.Timer;
+const Clock = std.Io.Clock;
 const zm = @import("zmath");
 
 var prng = std.Random.DefaultPrng.init(0);
 const random = prng.random();
 
-noinline fn mat4MulBenchmark(allocator: std.mem.Allocator, comptime count: comptime_int) !void {
+noinline fn mat4MulBenchmark(allocator: std.mem.Allocator, io: std.Io, comptime count: comptime_int) !void {
     std.debug.print("\n", .{});
     std.debug.print("{s:>42} - ", .{"matrix mul benchmark (AOS)"});
 
     var data0 = try std.ArrayList([16]f32).initCapacity(allocator, 64);
-    defer data0.deinit();
+    defer data0.deinit(allocator);
     var data1 = try std.ArrayList([16]f32).initCapacity(allocator, 64);
-    defer data1.deinit();
+    defer data1.deinit(allocator);
 
     var i: usize = 0;
     while (i < 64) : (i += 1) {
@@ -118,8 +116,7 @@ noinline fn mat4MulBenchmark(allocator: std.mem.Allocator, comptime count: compt
 
     {
         i = 0;
-        var timer = try Timer.start();
-        const start = timer.lap();
+        const start = Clock.now(.awake, io);
         while (i < count) : (i += 1) {
             for (data1.items) |b| {
                 for (data0.items) |a| {
@@ -145,16 +142,15 @@ noinline fn mat4MulBenchmark(allocator: std.mem.Allocator, comptime count: compt
                 }
             }
         }
-        const end = timer.read();
-        const elapsed_s = @as(f64, @floatFromInt(end - start)) / time.ns_per_s;
+        const end = Clock.now(.awake, io);
+        const elapsed_s = @as(f64, @floatFromInt(start.durationTo(end).toNanoseconds())) / std.time.ns_per_s;
 
         std.debug.print("scalar version: {d:.4}s, ", .{elapsed_s});
     }
 
     {
         i = 0;
-        var timer = try Timer.start();
-        const start = timer.lap();
+        const start = Clock.now(.awake, io);
         while (i < count) : (i += 1) {
             for (data1.items) |b| {
                 for (data0.items) |a| {
@@ -165,20 +161,23 @@ noinline fn mat4MulBenchmark(allocator: std.mem.Allocator, comptime count: compt
                 }
             }
         }
-        const end = timer.read();
-        const elapsed_s = @as(f64, @floatFromInt(end - start)) / time.ns_per_s;
+        const end = Clock.now(
+            .awake,
+            io,
+        );
+        const elapsed_s = @as(f64, @floatFromInt(start.durationTo(end).toNanoseconds())) / std.time.ns_per_s;
 
         std.debug.print("zmath version: {d:.4}s\n", .{elapsed_s});
     }
 }
 
-noinline fn cross3ScaleBiasBenchmark(allocator: std.mem.Allocator, comptime count: comptime_int) !void {
+noinline fn cross3ScaleBiasBenchmark(allocator: std.mem.Allocator, io: std.Io, comptime count: comptime_int) !void {
     std.debug.print("{s:>42} - ", .{"cross3, scale, bias benchmark (AOS)"});
 
     var data0 = try std.ArrayList([3]f32).initCapacity(allocator, 256);
-    defer data0.deinit();
+    defer data0.deinit(allocator);
     var data1 = try std.ArrayList([3]f32).initCapacity(allocator, 256);
-    defer data1.deinit();
+    defer data1.deinit(allocator);
 
     var i: usize = 0;
     while (i < 256) : (i += 1) {
@@ -201,8 +200,7 @@ noinline fn cross3ScaleBiasBenchmark(allocator: std.mem.Allocator, comptime coun
 
     {
         i = 0;
-        var timer = try Timer.start();
-        const start = timer.lap();
+        const start = Clock.now(.awake, io);
         while (i < count) : (i += 1) {
             for (data1.items) |b| {
                 for (data0.items) |a| {
@@ -215,16 +213,15 @@ noinline fn cross3ScaleBiasBenchmark(allocator: std.mem.Allocator, comptime coun
                 }
             }
         }
-        const end = timer.read();
-        const elapsed_s = @as(f64, @floatFromInt(end - start)) / time.ns_per_s;
+        const end = Clock.now(.awake, io);
+        const elapsed_s = @as(f64, @floatFromInt(start.durationTo(end).toNanoseconds())) / std.time.ns_per_s;
 
         std.debug.print("scalar version: {d:.4}s, ", .{elapsed_s});
     }
 
     {
         i = 0;
-        var timer = try Timer.start();
-        const start = timer.lap();
+        const start = Clock.now(.awake, io);
         while (i < count) : (i += 1) {
             for (data1.items) |b| {
                 for (data0.items) |a| {
@@ -235,14 +232,14 @@ noinline fn cross3ScaleBiasBenchmark(allocator: std.mem.Allocator, comptime coun
                 }
             }
         }
-        const end = timer.read();
-        const elapsed_s = @as(f64, @floatFromInt(end - start)) / time.ns_per_s;
+        const end = Clock.now(.awake, io);
+        const elapsed_s = @as(f64, @floatFromInt(start.durationTo(end).toNanoseconds())) / std.time.ns_per_s;
 
         std.debug.print("zmath version: {d:.4}s\n", .{elapsed_s});
     }
 }
 
-noinline fn cross3Dot3ScaleBiasBenchmark(allocator: std.mem.Allocator, comptime count: comptime_int) !void {
+noinline fn cross3Dot3ScaleBiasBenchmark(allocator: std.mem.Allocator, io: std.Io, comptime count: comptime_int) !void {
     std.debug.print("{s:>42} - ", .{"cross3, dot3, scale, bias benchmark (AOS)"});
 
     var data0 = try std.ArrayList([3]f32).initCapacity(allocator, 256);
@@ -271,8 +268,7 @@ noinline fn cross3Dot3ScaleBiasBenchmark(allocator: std.mem.Allocator, comptime 
 
     {
         i = 0;
-        var timer = try Timer.start();
-        const start = timer.lap();
+        const start = Clock.now(.awake, io);
         while (i < count) : (i += 1) {
             for (data1.items) |b| {
                 for (data0.items) |a| {
@@ -286,16 +282,15 @@ noinline fn cross3Dot3ScaleBiasBenchmark(allocator: std.mem.Allocator, comptime 
                 }
             }
         }
-        const end = timer.read();
-        const elapsed_s = @as(f64, @floatFromInt(end - start)) / time.ns_per_s;
+        const end = Clock.now(.awake, io);
+        const elapsed_s = @as(f64, @floatFromInt(start.durationTo(end).toNanoseconds())) / std.time.ns_per_s;
 
         std.debug.print("scalar version: {d:.4}s, ", .{elapsed_s});
     }
 
     {
         i = 0;
-        var timer = try Timer.start();
-        const start = timer.lap();
+        const start = Clock.now(.awake, io);
         while (i < count) : (i += 1) {
             for (data1.items) |b| {
                 for (data0.items) |a| {
@@ -306,14 +301,14 @@ noinline fn cross3Dot3ScaleBiasBenchmark(allocator: std.mem.Allocator, comptime 
                 }
             }
         }
-        const end = timer.read();
-        const elapsed_s = @as(f64, @floatFromInt(end - start)) / time.ns_per_s;
+        const end = Clock.now(.awake, io);
+        const elapsed_s = @as(f64, @floatFromInt(start.durationTo(end).toNanoseconds())) / std.time.ns_per_s;
 
         std.debug.print("zmath version: {d:.4}s\n", .{elapsed_s});
     }
 }
 
-noinline fn quatBenchmark(allocator: std.mem.Allocator, comptime count: comptime_int) !void {
+noinline fn quatBenchmark(allocator: std.mem.Allocator, io: std.Io, comptime count: comptime_int) !void {
     std.debug.print("{s:>42} - ", .{"quaternion mul benchmark (AOS)"});
 
     var data0 = try std.ArrayList([4]f32).initCapacity(allocator, 256);
@@ -342,8 +337,7 @@ noinline fn quatBenchmark(allocator: std.mem.Allocator, comptime count: comptime
 
     {
         i = 0;
-        var timer = try Timer.start();
-        const start = timer.lap();
+        const start = Clock.now(.awake, io);
         while (i < count) : (i += 1) {
             for (data1.items) |b| {
                 for (data0.items) |a| {
@@ -357,16 +351,15 @@ noinline fn quatBenchmark(allocator: std.mem.Allocator, comptime count: comptime
                 }
             }
         }
-        const end = timer.read();
-        const elapsed_s = @as(f64, @floatFromInt(end - start)) / time.ns_per_s;
+        const end = Clock.now(.awake, io);
+        const elapsed_s = @as(f64, @floatFromInt(start.durationTo(end).toNanoseconds())) / std.time.ns_per_s;
 
         std.debug.print("scalar version: {d:.4}s, ", .{elapsed_s});
     }
 
     {
         i = 0;
-        var timer = try Timer.start();
-        const start = timer.lap();
+        const start = Clock.now(.awake, io);
         while (i < count) : (i += 1) {
             for (data1.items) |b| {
                 for (data0.items) |a| {
@@ -377,14 +370,14 @@ noinline fn quatBenchmark(allocator: std.mem.Allocator, comptime count: comptime
                 }
             }
         }
-        const end = timer.read();
-        const elapsed_s = @as(f64, @floatFromInt(end - start)) / time.ns_per_s;
+        const end = Clock.now(.awake, io);
+        const elapsed_s = @as(f64, @floatFromInt(start.durationTo(end).toNanoseconds())) / std.time.ns_per_s;
 
         std.debug.print("zmath version: {d:.4}s\n", .{elapsed_s});
     }
 }
 
-noinline fn waveBenchmark(allocator: std.mem.Allocator, comptime count: comptime_int) !void {
+noinline fn waveBenchmark(allocator: std.mem.Allocator, io: std.Io, comptime count: comptime_int) !void {
     _ = allocator;
     std.debug.print("{s:>42} - ", .{"wave benchmark (SOA)"});
 
@@ -394,8 +387,7 @@ noinline fn waveBenchmark(allocator: std.mem.Allocator, comptime count: comptime
 
         const scale: f32 = 0.05;
 
-        var timer = try Timer.start();
-        const start = timer.lap();
+        const start = Clock.now(.awake, io);
 
         var iter: usize = 0;
         while (iter < count) : (iter += 1) {
@@ -428,8 +420,8 @@ noinline fn waveBenchmark(allocator: std.mem.Allocator, comptime count: comptime
             }
             t += 0.001;
         }
-        const end = timer.read();
-        const elapsed_s = @as(f64, @floatFromInt(end - start)) / time.ns_per_s;
+        const end = Clock.now(.awake, io);
+        const elapsed_s = @as(f64, @floatFromInt(start.durationTo(end).toNanoseconds())) / std.time.ns_per_s;
 
         std.debug.print("scalar version: {d:.4}s, ", .{elapsed_s});
     }
@@ -445,8 +437,7 @@ noinline fn waveBenchmark(allocator: std.mem.Allocator, comptime count: comptime
 
         const scale: f32 = 0.05;
 
-        var timer = try Timer.start();
-        const start = timer.lap();
+        const start = Clock.now(.awake, io);
 
         var iter: usize = 0;
         while (iter < count) : (iter += 1) {
@@ -469,8 +460,8 @@ noinline fn waveBenchmark(allocator: std.mem.Allocator, comptime count: comptime
             }
             vt += zm.splat(T, 0.001);
         }
-        const end = timer.read();
-        const elapsed_s = @as(f64, @floatFromInt(end - start)) / time.ns_per_s;
+        const end = Clock.now(.awake, io);
+        const elapsed_s = @as(f64, @floatFromInt(start.durationTo(end).toNanoseconds())) / std.time.ns_per_s;
 
         std.debug.print("zmath version: {d:.4}s\n", .{elapsed_s});
     }
