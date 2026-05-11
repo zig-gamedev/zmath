@@ -4423,7 +4423,7 @@ test "zmath.ifft" {
     // 512 samples
     {
         var re: [128]F32x4 = undefined;
-        var im = [_]F32x4{f32x4s(0.0)} ** 128;
+        var im: [128]F32x4 = @splat(f32x4s(0.0));
 
         for (&re, 0..) |*v, i| {
             const f = @as(f32, @floatFromInt(i * 4));
