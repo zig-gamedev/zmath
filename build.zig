@@ -8,7 +8,7 @@ pub fn build(b: *std.Build) void {
             std.builtin.OptimizeMode,
             "optimize",
             "The optimization level to use for the build",
-        ) orelse .ReleaseFast,
+        ) orelse .fast,
         .enable_cross_platform_determinism = b.option(
             bool,
             "enable_cross_platform_determinism",
@@ -17,8 +17,9 @@ pub fn build(b: *std.Build) void {
     };
 
     const options_step = b.addOptions();
-    inline for (std.meta.fields(@TypeOf(options))) |field| {
-        options_step.addOption(field.type, field.name, @field(options, field.name));
+    const options_info = @typeInfo(@TypeOf(options)).@"struct";
+    inline for (options_info.field_names, options_info.field_types) |name, T| {
+        options_step.addOption(T, name, @field(options, name));
     }
 
     const options_module = options_step.createModule();

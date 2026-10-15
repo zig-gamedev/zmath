@@ -427,7 +427,8 @@ pub inline fn arrNPtr(ptr: anytype) [*]const f32 {
 }
 test "zmath.arrNPtr" {
     {
-        const mat = identity();
+        var mat = identity();
+        _ = &mat;
         const f32ptr = arrNPtr(&mat);
         try expect(f32ptr[0] == 1.0);
         try expect(f32ptr[5] == 1.0);
@@ -435,7 +436,8 @@ test "zmath.arrNPtr" {
         try expect(f32ptr[15] == 1.0);
     }
     {
-        const v8 = f32x8s(1.0);
+        var v8 = f32x8s(1.0);
+        _ = &v8;
         const f32ptr = arrNPtr(&v8);
         try expect(f32ptr[1] == 1.0);
         try expect(f32ptr[7] == 1.0);
